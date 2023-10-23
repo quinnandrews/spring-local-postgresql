@@ -181,35 +181,57 @@ Now you can run the Application locally in IntelliJ IDEA by simply right-clickin
 
 ### Supported Configuration Properties
 
-spring.local.postgresql.engaged
-: Whether the embedded, containerized PostgreSQL database should be configured to start when the Application starts. By default, it is not engaged. Only engaged if `true`. 
+<dl>
+<dt>spring.local.postgresql.engaged</dt>
+<dd>
+    Whether the embedded, containerized PostgreSQL database should be configured to start when the Application starts. By default, it is not engaged. Only engaged if `true`. 
+</dd>
+    
+<dt>spring.local.postgresql.container.image</dt>
+<dd>
+    The name of a Docker Image containing a given version of PostgreSQL (example: `postgres:15`). If undefined, the Testcontainers default of `postgres:9.6.12` is used.
+</dd>
+    
+<dt>spring.local.postgresql.container.port</dt>
+<dd>
+    The port on the Docker Container that should map to the port used by PostgreSQL inside the container. If undefined, a random port is used, which is preferred for integration tests, but when running the Application locally, defining a fixed port is useful. It gives developers the ability to configure a JDBC client with a consistent port. Otherwise, the port in the client's configuration must be updated if the Application had been restarted since the client was last used.
+</dd>
 
-spring.local.postgresql.container.image
-: The name of a Docker Image containing a given version of PostgreSQL (example: `postgres:15`). If undefined, the Testcontainers default of `postgres:9.6.12` is used.
+<dt>spring.local.postgresql.container.log.follow</dt>
+<dd>
+    Whether the Application should log the log output produced by the Container. By default, container logs are not followed. Set with `true` to see their output.
+</dd>
 
-spring.local.postgresql.container.port
-: The port on the Docker Container that should map to the port used by PostgreSQL inside the container. If undefined, a random port is used, which is preferred for integration tests, but when running the Application locally, defining a fixed port is useful. It gives developers the ability to configure a JDBC client with a consistent port. Otherwise, the port in the client's configuration must be updated if the Application had been restarted since the client was last used.
+<dt>spring.local.postgresql.database.name</dt>
+<dd>
+    The name of the PostgreSQL database the Application will connect to. If undefined, defaults to the Testcontainers default of `test`.
+</dd>
 
-spring.local.postgresql.container.log.follow
-: Whether the Application should log the log output produced by the Container. By default, container logs are not followed. Set with `true` to see their output.
+<dt>spring.local.postgresql.database.username</dt>
+<dd>
+    The username of an admin or superuser in the PostgreSQL database. If no `spring.local.postgresql.database.application.username` is defined, this will also be the username the Application uses to connect. If undefined, defaults to the Testcontainers default of `test`.
+</dd>
 
-spring.local.postgresql.database.name
-: The name of the PostgreSQL database the Application will connect to. If undefined, defaults to the Testcontainers default of `test`.
+<dt>spring.local.postgresql.database.password</dt>
+<dd>
+    The password that goes with the username of the admin or superuser in the PostgreSQL database. If no `spring.local.postgresql.database.application.username` is defined, this will also be the password for the username the Application uses to connect. If undefined, defaults to the Testcontainers default of `test`.
+</dd>
 
-spring.local.postgresql.database.username
-: The username of an admin or superuser in the PostgreSQL database. If no `spring.local.postgresql.database.application.username` is defined, this will also be the username the Application uses to connect. If undefined, defaults to the Testcontainers default of `test`.
+<dt>spring.local.postgresql.database.application.username</dt>
+<dd>
+    In most cases the database user used by the Application should not have admin or superuser privileges. This property provides the ability to define the username of an "application user" for use during testing and local development. The Application will use this username to connect to the PostgreSQL database. If undefined, the value defined by `spring.local.postgresql.database.username` will be used instead. NOTE: This application user is NOT automatically created. An init-script is required to create the user and grant their initial privileges.
+</dd>
 
-spring.local.postgresql.database.password
-: The password that goes with the username of the admin or superuser in the PostgreSQL database. If no `spring.local.postgresql.database.application.username` is defined, this will also be the password for the username the Application uses to connect. If undefined, defaults to the Testcontainers default of `test`.
+<dt>spring.local.postgresql.database.application.password</dt>
+<dd>
+    In most cases the database user used by the Application should not have admin or superuser privileges. This property provides the ability to define the password for the username of an "application user" for use during testing and local development. The Application will use this password to connect to the PostgreSQL database. If undefined, the value defined by `spring.local.postgresql.database.password` will be used instead. NOTE: This application user is NOT automatically created. An init-script is required to create the user and grant their initial privileges.
+</dd>
 
-spring.local.postgresql.database.application.username
-: In most cases the database user used by the Application should not have admin or superuser privileges. This property provides the ability to define the username of an "application user" for use during testing and local development. The Application will use this username to connect to the PostgreSQL database. If undefined, the value defined by `spring.local.postgresql.database.username` will be used instead. NOTE: This application user is NOT automatically created. An init-script is required to create the user and grant their initial privileges.
-
-spring.local.postgresql.database.application.password
-: In most cases the database user used by the Application should not have admin or superuser privileges. This property provides the ability to define the password for the username of an "application user" for use during testing and local development. The Application will use this password to connect to the PostgreSQL database. If undefined, the value defined by `spring.local.postgresql.database.password` will be used instead. NOTE: This application user is NOT automatically created. An init-script is required to create the user and grant their initial privileges.
-
-spring.local.postgresql.database.init.script
-: The path to an SQL file (beginning with the `resources` directory as the root)  that should be executed when the Docker Container starts. Executes before migrations. Useful for administrative tasks, like creating additional users, for example. If undefined, no script is executed.
+<dt>spring.local.postgresql.database.init.script</dt>
+<dd>
+    The path to an SQL file (beginning with the `resources` directory as the root)  that should be executed when the Docker Container starts. Executes before migrations. Useful for administrative tasks, like creating additional users, for example. If undefined, no script is executed.
+</dd>
+</dl>
 
 ## Examples
 
