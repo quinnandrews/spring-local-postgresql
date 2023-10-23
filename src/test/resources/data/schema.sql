@@ -1,0 +1,5 @@
+
+CREATE TABLE guitar_pedal (
+    id BIGINT NOT NULL PRIMARY KEY,
+    name VARCHAR(63) NOT NULL
+);

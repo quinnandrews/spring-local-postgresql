@@ -1,0 +1,4 @@
+
+CREATE USER overdrive WITH PASSWORD 'reverb';
+GRANT CREATE, USAGE ON SCHEMA public to overdrive;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public to overdrive;
