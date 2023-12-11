@@ -1,6 +1,9 @@
 package org.quinnandrews.spring.local.postgresql.application.data.guitarpedals;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Table(name = "guitar_pedal")
 @Entity

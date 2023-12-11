@@ -4,7 +4,7 @@
       "name": "spring.local.postgresql.engaged",
       "type": "java.lang.Boolean",
       "description": "Whether the embedded, containerized PostgreSQL database should be configured to start when the Application starts.",
-      "defaultValue": false
+      "defaultValue": true
     },
     {
       "name": "spring.local.postgresql.container.image",

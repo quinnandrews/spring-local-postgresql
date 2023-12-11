@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("appuser")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(classes = Application.class)
-public class AppuserPostgreSQLContainerConfigTest {
+public class AppUserPostgreSQLContainerConfigTest {
 
     @Autowired(required = false)
     private PostgreSQLContainer<?> postgreSQLContainer;

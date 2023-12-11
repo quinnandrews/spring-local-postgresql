@@ -1,7 +1,5 @@
 package org.quinnandrews.spring.local.postgresql;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -17,6 +15,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext
 @ActiveProfiles("custom")

@@ -8,15 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.utility.DockerImageName;
 
-import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.Optional;
 
@@ -31,7 +30,8 @@ import java.util.Optional;
  * @author Quinn Andrews
  */
 @ConditionalOnProperty(name="spring.local.postgresql.engaged",
-                       havingValue="true")
+                       havingValue="true",
+                       matchIfMissing = true)
 @Configuration
 public class PostgreSQLContainerConfig {
 
@@ -48,8 +48,6 @@ public class PostgreSQLContainerConfig {
     private final String databaseName;
     private final String username;
     private final String password;
-    private final String applicationUsername;
-    private final String applicationPassword;
     private final String initScript;
 
     /**
@@ -61,10 +59,6 @@ public class PostgreSQLContainerConfig {
      * @param databaseName        The name for the database (optional).
      * @param username            The username of the database super/admin user (optional).
      * @param password            The password for the database super/admin user (optional).
-     * @param applicationUsername The username of the database user the Application should connect with,
-     *                            if different from the super/admin user (optional).
-     * @param applicationPassword The password for the database user the Application should connect with,
-     *                            if different from the super/admin user (optional).
      * @param initScript          The path to an SQL script that should be executed when the Container
      *                            starts (optional).
      */
@@ -80,10 +74,6 @@ public class PostgreSQLContainerConfig {
                                      final String username,
                                      @Value("${spring.local.postgresql.database.password:#{null}}")
                                      final String password,
-                                     @Value("${spring.local.postgresql.database.application.username:#{null}}")
-                                     final String applicationUsername,
-                                     @Value("${spring.local.postgresql.database.application.password:#{null}}")
-                                     final String applicationPassword,
                                      @Value("${spring.local.postgresql.database.init.script:#{null}}")
                                      final String initScript) {
         this.containerImage = containerImage;
@@ -92,8 +82,6 @@ public class PostgreSQLContainerConfig {
         this.databaseName = databaseName;
         this.username = username;
         this.password = password;
-        this.applicationUsername = applicationUsername;
-        this.applicationPassword = applicationPassword;
         this.initScript = initScript;
     }
 
@@ -104,6 +92,7 @@ public class PostgreSQLContainerConfig {
      * @return PostgreSQLContainer
      */
     @Bean
+    @ServiceConnection
     public PostgreSQLContainer<?> postgreSQLContainer() {
         final var container = new PostgreSQLContainer<>(
                 DockerImageName.parse(Optional.ofNullable(containerImage)
@@ -157,17 +146,57 @@ public class PostgreSQLContainerConfig {
     /**
      * Initializes a Spring Bean connecting the Application to the PostgreSQLContainer.
      *
+     * @param applicationUsername The username of the database user the Application should connect with,
+     *                            if different from the super/admin user (optional).
+     * @param applicationPassword The password for the database user the Application should connect with,
+     *                            if different from the super/admin user (optional).
      * @param container The instance of PostgreSQLContainer to build the DataSource with.
      * @return DataSource
      */
-    @Primary
     @Bean
-    public DataSource dataSource(final PostgreSQLContainer<?> container) {
-        return DataSourceBuilder.create()
-            .url(container.getJdbcUrl())
-            .username(Optional.ofNullable(applicationUsername).orElse(container.getUsername()))
-            .password(Optional.ofNullable(applicationPassword).orElse(container.getPassword()))
-            .driverClassName(container.getDriverClassName())
-            .build();
+    public JdbcConnectionDetails jdbcConnectionDetails(@Value("${spring.local.postgresql.database.application.username:#{null}}")
+                                                           final String applicationUsername,
+                                                       @Value("${spring.local.postgresql.database.application.password:#{null}}")
+                                                           final String applicationPassword,
+                                                       final PostgreSQLContainer<?> container) {
+        return new LocalPostgreSQLConnectionDetails(applicationUsername, applicationPassword, container);
+    }
+
+
+    public static class LocalPostgreSQLConnectionDetails implements JdbcConnectionDetails {
+
+        private final String applicationUsername;
+        private final String applicationPassword;
+        private final PostgreSQLContainer<?> container;
+
+        public LocalPostgreSQLConnectionDetails(final String applicationUsername,
+                                                final String applicationPassword,
+                                                final PostgreSQLContainer<?> container) {
+            this.applicationUsername = applicationUsername;
+            this.applicationPassword = applicationPassword;
+            this.container = container;
+        }
+
+        @Override
+        public String getUsername() {
+            return Optional.ofNullable(applicationUsername)
+                    .orElse(container.getUsername());
+        }
+
+        @Override
+        public String getPassword() {
+            return Optional.ofNullable(applicationPassword)
+                    .orElse(container.getPassword());
+        }
+
+        @Override
+        public String getJdbcUrl() {
+            return container.getJdbcUrl();
+        }
+
+        @Override
+        public String getDriverClassName() {
+            return container.getDriverClassName();
+        }
     }
 }

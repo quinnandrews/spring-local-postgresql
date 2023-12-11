@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.quinnandrews.spring.local.postgresql.application.Application;
-import org.quinnandrews.spring.local.postgresql.config.PostgreSQLContainerConfig;
 import org.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import org.quinnandrews.spring.local.postgresql.config.PostgreSQLContainerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
@@ -18,7 +18,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DirtiesContext
 @ActiveProfiles("default")
