@@ -184,7 +184,7 @@ Now you can run the Application locally in IntelliJ IDEA by simply right-clickin
 <dl>
 <dt>spring.local.postgresql.engaged</dt>
 <dd>
-    Whether the embedded, containerized PostgreSQL database should be configured to start when the Application starts. By default, it is not engaged. Only engaged if `true`. 
+    Whether the embedded, containerized PostgreSQL database should be configured to start when the Application starts. By default, it is engaged. To explicitly engage, set to `true`. To disengage, set to 'false'. 
 </dd>
     
 <dt>spring.local.postgresql.container.image</dt>
