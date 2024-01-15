@@ -1,6 +1,6 @@
-package org.quinnandrews.spring.local.postgresql.application;
+package io.github.quinnandrews.spring.local.postgresql.application;
 
-import org.quinnandrews.spring.local.postgresql.config.EnableLocalPostgreSQL;
+import io.github.quinnandrews.spring.local.postgresql.config.EnableLocalPostgreSQL;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,4 +1,4 @@
-package org.quinnandrews.spring.local.postgresql.application.data.guitarpedals;
+package io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

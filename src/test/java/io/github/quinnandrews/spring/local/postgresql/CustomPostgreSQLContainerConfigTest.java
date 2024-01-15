@@ -1,12 +1,9 @@
-package org.quinnandrews.spring.local.postgresql;
+package io.github.quinnandrews.spring.local.postgresql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.quinnandrews.spring.local.postgresql.application.Application;
-import org.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import io.github.quinnandrews.spring.local.postgresql.application.Application;
+import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
@@ -79,12 +76,12 @@ public class CustomPostgreSQLContainerConfigTest {
         // and the database contains the three pedals
         assertEquals(3, guitarPedalRepository.count());
         final var pedals = guitarPedalRepository.findAll(Sort.by("name"));
-        assertEquals(3L, pedals.get(0).getId());
-        assertEquals("Catalinbread Soft Focus Reverb", pedals.get(0).getName());
-        assertEquals(1L, pedals.get(1).getId());
-        assertEquals("Electro-Harmonix Big Muff Fuzz", pedals.get(1).getName());
-        assertEquals(2L, pedals.get(2).getId());
-        assertEquals("Strymon Deco: Tape Saturation and Double Tracker", pedals.get(2).getName());
+        Assertions.assertEquals(3L, pedals.get(0).getId());
+        Assertions.assertEquals("Catalinbread Soft Focus Reverb", pedals.get(0).getName());
+        Assertions.assertEquals(1L, pedals.get(1).getId());
+        Assertions.assertEquals("Electro-Harmonix Big Muff Fuzz", pedals.get(1).getName());
+        Assertions.assertEquals(2L, pedals.get(2).getId());
+        Assertions.assertEquals("Strymon Deco: Tape Saturation and Double Tracker", pedals.get(2).getName());
     }
 
     @Test

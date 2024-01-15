@@ -1,6 +1,6 @@
-package org.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository;
+package io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository;
 
-import org.quinnandrews.spring.local.postgresql.application.data.guitarpedals.GuitarPedal;
+import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.GuitarPedal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

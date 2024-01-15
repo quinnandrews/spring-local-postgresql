@@ -1,4 +1,4 @@
-package org.quinnandrews.spring.local.postgresql.config;
+package io.github.quinnandrews.spring.local.postgresql.config;
 
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;

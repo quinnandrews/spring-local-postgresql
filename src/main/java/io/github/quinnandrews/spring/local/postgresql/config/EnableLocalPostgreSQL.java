@@ -1,4 +1,4 @@
-package org.quinnandrews.spring.local.postgresql.config;
+package io.github.quinnandrews.spring.local.postgresql.config;
 
 import org.springframework.context.annotation.Import;
 

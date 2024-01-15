@@ -1,12 +1,13 @@
-package org.quinnandrews.spring.local.postgresql;
+package io.github.quinnandrews.spring.local.postgresql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.quinnandrews.spring.local.postgresql.application.Application;
-import org.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import io.github.quinnandrews.spring.local.postgresql.application.Application;
+import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import io.github.quinnandrews.spring.local.postgresql.config.PostgreSQLContainerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
@@ -19,10 +20,10 @@ import javax.sql.DataSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext
-@ActiveProfiles("disabled")
+@ActiveProfiles("default")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(classes = Application.class)
-public class DisabledPostgreSQLContainerConfigTest {
+public class DefaultPostgreSQLContainerConfigTest {
 
     @Autowired(required = false)
     private PostgreSQLContainer<?> postgreSQLContainer;
@@ -35,36 +36,43 @@ public class DisabledPostgreSQLContainerConfigTest {
 
     @Test
     @Order(1)
-    void container_notInitialized() {
+    void container_initialized() {
         // given the application is initialized
-        // and the 'disabled' profile is active
-        // then the container is not initialized
-        assertNull(postgreSQLContainer);
+        // and the 'default' profile is active
+        // and the container is initialized
+        assertNotNull(postgreSQLContainer);
+        assertTrue(postgreSQLContainer.isRunning());
+        // then the container uses its default configuration
+        assertEquals(PostgreSQLContainerConfig.POSTGRESQL_DEFAULT_IMAGE, postgreSQLContainer.getDockerImageName());
+        assertNotNull(postgreSQLContainer.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
+        assertEquals("test", postgreSQLContainer.getDatabaseName());
+        assertEquals("test", postgreSQLContainer.getUsername());
+        assertEquals("test", postgreSQLContainer.getPassword());
     }
 
     @Test
     @Order(2)
     void dataSource_initialized() {
         // given the application is initialized
-        // and the 'disabled' profile is active
-        // and the container is not initialized
+        // and the 'default' profile is active
+        // and the container is initialized
         // then the datasource is initialized
         assertNotNull(dataSource);
         final var hikariDataSource = (HikariDataSource) dataSource;
         assertTrue(hikariDataSource.isRunning());
-        // and the datasource matches the 'disabled' configuration
-        assertEquals("jdbc:h2:mem:testdb", hikariDataSource.getJdbcUrl());
-        assertEquals("sa", hikariDataSource.getUsername());
-        assertEquals("password", hikariDataSource.getPassword());
-        assertEquals("org.h2.Driver", hikariDataSource.getDriverClassName());
+        // and the datasource matches the container
+        assertEquals(postgreSQLContainer.getJdbcUrl(), hikariDataSource.getJdbcUrl());
+        assertEquals(postgreSQLContainer.getUsername(), hikariDataSource.getUsername());
+        assertEquals(postgreSQLContainer.getPassword(), hikariDataSource.getPassword());
+        assertEquals(postgreSQLContainer.getDriverClassName(), hikariDataSource.getDriverClassName());
     }
 
     @Test
     @Order(3)
     void guitarPedalRepository_initialized_dataAccessible() {
         // given the application is initialized
-        // and the 'disabled' profile is active
-        // and the container is not initialized
+        // and the 'default' profile is active
+        // and the container is initialized
         // and the datasource is initialized
         // and three pedals were inserted when data.sql was executed
         // then the guitarPedalRepository is initialized
@@ -84,15 +92,15 @@ public class DisabledPostgreSQLContainerConfigTest {
     @Order(4)
     void sqlInitScript_notExecuted() {
         // given the application is initialized
-        // and the 'disabled' profile is active
-        // and the container is not initialized
+        // and the 'default' profile is active
+        // and the container is initialized
         // and the datasource is initialized
-        // and the database user 'sa' was added with 'disabled' configuration via H2
+        // and the database user 'test' was added by PostgreSQLContainer by default
         // and no other user was added, because no initScript was configured
         // and the guitarPedalRepository is initialized
-        // then the database contains only 'sa'
-        final var users = guitarPedalRepository.getH2Users();
+        // then the database contains only 'test'
+        final var users = guitarPedalRepository.getPostgreSQLUsers();
         assertEquals(1, users.size());
-        assertEquals("sa", users.get(0));
+        assertEquals("test", users.get(0));
     }
 }
