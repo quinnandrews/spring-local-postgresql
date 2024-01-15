@@ -1,15 +1,23 @@
 # Spring Local PostgreSQL
 
 ## Description
-Provides configuration of an embedded PostgreSQL database (via Testcontainers)
-within Spring Boot Applications for local development and testing.
+Provides enhanced configuration of an embedded PostgreSQL database provided by Testcontainers. For use within Spring Boot Applications to support local development in addition to integration test execution.
 
-Requires minimal configuration using Spring conventions, but a variety of optional properties are supported to override default behavior.
+Requires minimal configuration using Spring conventions, but a variety of optional properties are provided to override default behavior and control the underlying container's configuration by profile.
+
+## Features
+- Configure whether the embedded PostgreSQL is active or not. Allows you to control its activation by profile.
+- Configure the Docker image to contain the embedded PostgreSQL. Allows you to match your local and test environments with the version of PostgreSQL running in production.
+- Configure the embedded PostgreSQL to run on a defined, fixed port. Useful for local development so that developers can connect to the database with their client of choice with consistent configuration.
+- Configure whether to follow the containers log output. Useful for troubleshooting.
+- Configure the database name to match production.
+- Configure a database super user to handle migration scripts and a second user with fewer privileges for the Application to use. 
+- Configure an SQL script to run when the PostgreSQL database is spun up.
 
 ## Rationale
 When developing an Application that uses PostgreSQL in production, an embedded PostgreSQL server provides the benefits of using an in-memory database, like H2, but avoids the downsides. The database is spun up and torn down when the Application starts up and shuts down, but developers are able to utilize PostgreSQL features (that alternatives like H2 may not support) and the test and local environments better resemble production. Development is more effective and reliable.
 
-While Testcontainers is meant to be used exclusively in support of integration tests, this module is designed to support running the Application locally as well, reducing the overhead of maintaining Testcontainers and some other solution that fundamentally does the same thing. There is no need to maintain a local PostgreSQL server nor additional Docker configuration inside or outside the project.
+While Testcontainers is meant to be used exclusively in support of integration tests, this project is designed to support running the Application locally as well, reducing the overhead of maintaining Testcontainers and some other solution that fundamentally does the same thing. There is no need to maintain a local PostgreSQL server nor additional Docker configuration inside or outside the project.
 
 ## Requirements
 ### Java 17 
@@ -19,7 +27,6 @@ https://adoptium.net/temurin/releases/?version=17
 https://www.docker.com/products/docker-desktop/
 
 ### PostgreSQL JDBC Driver
-https://jdbc.postgresql.org<br>
 ```xml
 <dependency>
     <groupId>org.postgresql</groupId>
@@ -28,95 +35,31 @@ https://jdbc.postgresql.org<br>
 </dependency>
 ```
 
-### Testcontainers PostgreSQL
-Version `1.18.3` is included as a transitive dependency.<br>
-https://www.testcontainers.org/modules/databases/postgres
+### Spring Boot Starter JDBC
 ```xml
 <dependency>
-    <groupId>org.testcontainers</groupId>
-    <artifactId>postgresql</artifactId>
-    <version>1.18.3</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
 </dependency>
 ```
 
-### Spring Boot 3
-A variety of modules from version `3.1.2` are included as transitive dependencies.<br>
-https://spring.io/projects/spring-boot
-```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>3.1.2</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-```
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-configuration-processor</artifactId>
-    </dependency>
-</dependencies>>
-```
+## Dependencies
+- Spring Boot Starter Web 3.2.0
+- Spring Boot Configuration Processor 3.2.0
+- Spring Boot Starter Test 3.2.0
+- Spring Boot Testcontainers 3.2.0
+- Testcontainers PostgreSQL 1.19.3
+
 ## Usage
 
-### Configuration
-
-First, add this module as a dependency in your project:
-```xml
-<dependency>
-    <groupId>io.github.quinnandrews</groupId>
-    <artifactId>spring-local-postgresql</artifactId>
-    <version>1.0-SNAPSHOT</version>
-</dependency>
-```
-
-Next, add `@EnableLocalPostreSQL` to your Spring Boot Application Class:
-```java
-@EnableLocalPostgreSQL
-@SpringBootApplication
-public class Application {
-
-    public static void main(final String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-}
-```
-
-Then define the following property for the profiles that should initialize the embedded PostgreSQL:
-```properties
-spring.local.postgresql.engaged=true
-```
-
-If desired, define any of the following properties to override default behavior (see below for detailed descriptions):
-
-```properties
-spring.local.postgresql.container.image=postgres:15
-spring.local.postgresql.container.port=15432
-spring.local.postgresql.container.log.follow=true
-spring.local.postgresql.database.name=local
-spring.local.postgresql.database.username=superuser
-spring.local.postgresql.database.password=password
-spring.local.postgresql.database.application.username=appuser
-spring.local.postgresql.database.application.password=password
-spring.local.postgresql.database.init.script=data/init.sql
-```
-
 ### Configuration as a Test Dependency
-Understandably, one may prefer this module as a test dependency rather than a compile dependency. But this means that all configuration for this module can only reside in your project's test source, which is fine for integration tests, but how, then, can you run the Application locally?
+While it is possible to configure this project as a compile dependency, and control its activation with profiles, it is not good practice. This project should always be configured as a test dependency. 
+
+However, this means that all configuration of this project can only reside in your project's test source, which is fine for integration tests, but= what about running the Application locally?
 
 To do this we implement an approach surfaced in this  [article](https://bsideup.github.io/posts/local_development_with_testcontainers/) by Sergei Egorov.
 
-First, add this module as a test dependency in your project:
+First, Add this project's artifact to your project as a test dependency:
 ```xml
 <dependency>
     <groupId>io.github.quinnandrews</groupId>
@@ -125,7 +68,35 @@ First, add this module as a test dependency in your project:
     <scope>test</scope>
 </dependency>
 ```
-Next, add a Spring Boot Application Class to your project's test source that includes the `@EnableLocalPostgreSQL` Annotation and passes the Application Class in your project's main source to the `run` method (so that Configuration in the main source is initialized):
+(NOTE: This project's artifact is NOT yet available in Maven Central)
+
+Next, create properties files in your the test resources directory for `local` and `test` profiles with your configuration of choice. We recommend that the `local` profile is configured with a fixed port while the `test` profile is configured to use a random port, which is considered best practice for integration tests. And you may want do things like enable following of the container logs for the `local` profile as well:
+
+application-local.properties
+```properties
+spring.local.postgresql.container.image=postgres:15
+spring.local.postgresql.container.port=15432
+spring.local.postgresql.container.log.follow=true
+spring.local.postgresql.database.name=pedals
+spring.local.postgresql.database.username=fuzz
+spring.local.postgresql.database.password=echo
+spring.local.postgresql.database.application.username=overdrive
+spring.local.postgresql.database.application.password=reverb
+spring.local.postgresql.database.init.script=data/init.sql
+```
+
+application-test.properties
+```properties
+spring.local.postgresql.container.image=postgres:15
+spring.local.postgresql.database.name=pedals
+spring.local.postgresql.database.username=fuzz
+spring.local.postgresql.database.password=echo
+spring.local.postgresql.database.application.username=overdrive
+spring.local.postgresql.database.application.password=reverb
+spring.local.postgresql.database.init.script=data/init.sql
+```
+
+Then add a Spring Boot Application Class to your project's test source that includes the `@EnableLocalPostgreSQL` Annotation and passes the Application Class in your project's main source to the `run` method (so that Configuration in the main source is initialized):
 ```java
 @EnableLocalPostgreSQL
 @SpringBootApplication
@@ -137,7 +108,7 @@ public class LocalDevApplication {
 }
 ```
 
-Then you can reference `LocalApplication.class` in your integration tests to enable the embedded PostgreSQL by using the `classes` attribute on `@SpringBootTest`:
+Now you can reference `LocalApplication.class` in your integration tests to enable the embedded PostgreSQL by using the `classes` attribute on `@SpringBootTest`:
 ```java
 @ActiveProfiles("test")
 @SpringBootTest(classes = LocalApplication.class)
@@ -146,7 +117,7 @@ class IntegrationTest {
 }
 ```
 
-Or, alternatively, your integration tests can ignore `LocalApplication.class` and enable the embedded PostgreSQL by using `@EnableLocalPostgreSQL`:
+Or, alternatively, your integration tests can include the embedded PostgreSQL directly by using `@EnableLocalPostgreSQL` (NOTE: You may need to declare the Application Class in your main source using `classes` attribute to avoid conflicts):
 ```java
 @EnableLocalPostgreSQL
 @ActiveProfiles("test")
@@ -155,13 +126,14 @@ class IntegrationTest {
 
 }
 ```
+
 Then you can create a `Run Configuration` in IntelliJ IDEA, for example, setting `LocalApplication.class` as the `Main Class` and defining `local` as the active profile. 
 
-Now when you run the `Run Configuration` or your integration tests, the embedded PostgreSQL will be initialized, assuming that the `local` and `test` profiles have set the `spring.local.postgresql.engaged` property to `true'.`
+Now when you run the `Run Configuration` or your integration tests, the embedded PostgreSQL will be initialized.
 
-**But there is a way to make this even more convenient.**
+**_But there is a way to make this even more convenient._**
 
-If your integration tests reference `LocalApplication.class`, it's worth noting that the `main` method isn't actually executed in that case. Spring is doing something different. 
+If your integration tests reference `LocalApplication.class`, it's worth noting that the `main` method isn't actually executed when the tests run. Spring is using the Class for reference and doing something different in place of executing the `main` method. 
 
 What this means is that you can activate the `local` profile explicitly in the body of the `main` method:
 ```java
@@ -177,7 +149,7 @@ public class LocalApplication {
 }
 ```
 
-Now you can run the Application locally in IntelliJ IDEA by simply right-clicking on `LocalApplication.class` in the Project Panel and selecting `Run 'LocalApplication'` from the Context Menu, which will also create a `Run Configuration` for later use. 
+Now you can run the Application locally in IntelliJ IDEA by simply right-clicking on `LocalApplication.class` in the Project Panel and selecting `Run 'LocalApplication'` from the Context Menu, which will also create a `Run Configuration` for later use, but you don't need to do make any changes to the `Run Configuration`. Its default setting work just fine.  
 
 ### Supported Configuration Properties
 

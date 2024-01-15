@@ -155,9 +155,9 @@ public class PostgreSQLContainerConfig {
      */
     @Bean
     public JdbcConnectionDetails jdbcConnectionDetails(@Value("${spring.local.postgresql.database.application.username:#{null}}")
-                                                           final String applicationUsername,
+                                                       final String applicationUsername,
                                                        @Value("${spring.local.postgresql.database.application.password:#{null}}")
-                                                           final String applicationPassword,
+                                                       final String applicationPassword,
                                                        final PostgreSQLContainer<?> container) {
         return new LocalPostgreSQLConnectionDetails(applicationUsername, applicationPassword, container);
     }
