@@ -55,7 +55,7 @@ https://www.docker.com/products/docker-desktop/
 ### Configuration as a Test Dependency
 While it is possible to configure this project as a compile dependency, and control its activation with profiles, it is not good practice. This project should always be configured as a test dependency. 
 
-However, this means that all configuration of this project can only reside in your project's test source, which is fine for integration tests, but= what about running the Application locally?
+However, this means that all configuration of this project can only reside in your project's test source, which is fine for integration tests, but what about running the Application locally?
 
 To do this we implement an approach surfaced in this  [article](https://bsideup.github.io/posts/local_development_with_testcontainers/) by Sergei Egorov.
 
