@@ -64,11 +64,11 @@ First, Add this project's artifact to your project as a test dependency:
 <dependency>
     <groupId>io.github.quinnandrews</groupId>
     <artifactId>spring-local-postgresql</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
 ```
-(NOTE: This project's artifact is NOT yet available in Maven Central)
+(NOTE: This project's artifact is NOT yet available in Maven Central, but is available from GitHub Packages.)
 
 Next, create properties files in your the test resources directory for `local` and `test` profiles with your configuration of choice. We recommend that the `local` profile is configured with a fixed port while the `test` profile is configured to use a random port, which is considered best practice for integration tests. And you may want do things like enable following of the container logs for the `local` profile as well:
 
