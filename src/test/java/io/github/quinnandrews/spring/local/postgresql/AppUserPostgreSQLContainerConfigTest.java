@@ -1,12 +1,12 @@
 package io.github.quinnandrews.spring.local.postgresql;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.quinnandrews.spring.local.postgresql.application.Application;
+import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import io.github.quinnandrews.spring.local.postgresql.application.Application;
-import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
@@ -43,6 +43,7 @@ public class AppUserPostgreSQLContainerConfigTest {
         assertTrue(postgreSQLContainer.isRunning());
         // then the container matches the 'appuser' configuration
         assertEquals("postgres:15", postgreSQLContainer.getDockerImageName());
+        assertEquals("/local_postgresql", postgreSQLContainer.getContainerName());
         assertEquals(15432, postgreSQLContainer.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
         assertEquals("pedals", postgreSQLContainer.getDatabaseName());
         assertEquals("fuzz", postgreSQLContainer.getUsername());

@@ -1,13 +1,13 @@
 package io.github.quinnandrews.spring.local.postgresql;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.quinnandrews.spring.local.postgresql.application.Application;
+import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
+import io.github.quinnandrews.spring.local.postgresql.config.PostgreSQLContainerConfig;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import io.github.quinnandrews.spring.local.postgresql.application.Application;
-import io.github.quinnandrews.spring.local.postgresql.application.data.guitarpedals.repository.GuitarPedalRepository;
-import io.github.quinnandrews.spring.local.postgresql.config.PostgreSQLContainerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;

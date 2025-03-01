@@ -40,6 +40,7 @@ public class CustomPostgreSQLContainerConfigTest {
         assertTrue(postgreSQLContainer.isRunning());
         // then the container matches the 'custom' configuration
         assertEquals("postgres:15", postgreSQLContainer.getDockerImageName());
+        assertEquals("/local_postgresql", postgreSQLContainer.getContainerName());
         assertEquals(15432, postgreSQLContainer.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
         assertEquals("pedals", postgreSQLContainer.getDatabaseName());
         assertEquals("fuzz", postgreSQLContainer.getUsername());
